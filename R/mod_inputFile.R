@@ -13,7 +13,7 @@
 #' @keywords internal
 #' @export 
 #' @importFrom shiny NS tagList 
-mod_inputFile_ui <- function(id, label = "file"){
+mod_inputFile_ui <- function(id, label = "Please Select A Data File"){
   # Create a namespace function using the provided id
   ns <- NS(id)
   

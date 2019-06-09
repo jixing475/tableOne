@@ -20,10 +20,10 @@ My_DT_table <- purrr::partial(DT::datatable,  extensions = c('Buttons', 'FixedCo
                                         scrollX = TRUE,
                                         scroller = TRUE,
                                         dom = 'Bfrtip',
-                                        buttons = c('colvis','csv','excel'),
-                                        columnDefs = list(
-                                          list(targets = c(6), visible = FALSE)
-                                        )
-                                        )#,
+                                        buttons = c('colvis','csv','excel','pdf'))#,
+                                        #columnDefs = list(
+                                        #  list(targets = c(1), visible = FALSE)
+                                        #)
+                                        #)#,
                          #filter = 'bottom'
                          )

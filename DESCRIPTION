@@ -8,20 +8,23 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     attempt,
+    dplyr,
     DT,
+    flextable,
     glue,
     golem,
-    dplyr,
-    magrittr,
-    purrr,
-    stringr,
-    shinyWidgets,
     htmltools,
+    magrittr,
+    officer,
+    pkgload,
+    purrr,
     rio,
     shiny,
+    shinycssloaders,
+    shinyWidgets,
+    stringr,
     tableone,
-    tidyverse,
-    pkgload
+    tidyverse
 Remotes: 
     Thinkr-open/golem
 RoxygenNote: 6.1.1

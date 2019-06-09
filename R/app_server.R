@@ -12,6 +12,10 @@ app_server <- function(input, output,session) {
   }
   #data  <-  callModule(mod_csv_file, "jixing")
   data <- callModule(mod_inputFile_server, "jixing")
+  
+  output$data_upload <- DT::renderDataTable({My_DT_table(data())})
+  output$plot_missing <- renderPlot({ vis_miss(data()) })
+  
   output$my_select_UI <- renderUI({
     # initial selections
     selections <- c()
@@ -20,8 +24,11 @@ app_server <- function(input, output,session) {
     # update the selection list. Note the double assignment <<-
     observeEvent(input$mybutton,{
       selections <<- colnames(data())
-      shinyWidgets::updatePickerInput(session, "continuousVars", choices = selections, selected = selections)
-      shinyWidgets::updatePickerInput(session, "factorsVars", choices = selections)
+      num_col <<- selections[map_lgl(data(), is.numeric)]
+      fac_col <<- selections[!map_lgl(data(), is.numeric)]
+      
+      shinyWidgets::updatePickerInput(session, "continuousVars", choices = selections, selected = num_col)
+      shinyWidgets::updatePickerInput(session, "factorsVars", choices = selections, selected = fac_col)
       shinyWidgets::updatePickerInput(session, "group", choices = selections)
     })
     
@@ -39,6 +46,7 @@ app_server <- function(input, output,session) {
     
   })
   
+
   #assign('data', data_csv(), envir = .GlobalEnv)
   #colname <- names(data_csv())
   #output$colname <- renderUI({
@@ -49,10 +57,19 @@ app_server <- function(input, output,session) {
   #output$table_csv <- DT::renderDT({data()})
   
   observeEvent( input$go , {
-    tableOne <- reactive({
+    table_one_group <- reactive({
       CreateTableOne(
         vars = c(input$continuousVars, input$factorsVars),
         strata = input$group,# Group
+        data = data(),# filter group is NA
+        factorVars = input$factorVars # category variable
+      )
+    })
+    
+    table_one_overall <- reactive({
+      CreateTableOne(
+        vars = c(input$continuousVars, input$factorsVars),
+        #strata = input$group,# Group
         data = data(),
         factorVars = input$factorVars # category variable
       )
@@ -62,7 +79,7 @@ app_server <- function(input, output,session) {
   
   idx <- c()
   for(i in seq_along(group_levels)){
-    idx <- tableOne()$ContTable[[i]] %>% as.data.frame() %>% 
+    idx <- table_one_group()$ContTable[[i]] %>% as.data.frame() %>% 
       dplyr::pull(skew) %>% 
       abs() %>% 
       `>`(2) %>% # absolutely value is greater than 2
@@ -73,7 +90,7 @@ app_server <- function(input, output,session) {
   
   idx
   
-  non_normal <- rownames(tableOne()$ContTable[[1]])[idx]
+  non_normal <- rownames(table_one_group()$ContTable[[1]])[idx]
   
   ## Just typing the object name will invoke the print.TableOne method
   ## Tests are by oneway.test/t.test for continuous, chisq.test for categorical
@@ -82,21 +99,13 @@ app_server <- function(input, output,session) {
   ## Specify variables in the exact argument to obtain the exact test
   ## (fisher.test) p-values. If a 2-level factor is specified in cramVars
   ## both levels are shown in one row.
-  res <- print(
-    tableOne(),
-    nonnormal = non_normal,# nonparametric test
-    #exact = c("status", "stage"), # fisher.test
-    #cramVars = "sex", # both levels are shown
-    quote = FALSE
-  )   
   
-  #==== edit results ====
-  colnames(res) <-  stringr::str_replace_all(colnames(res), '"', '')
+  res_group <- tableone_list2df(table_one_group(), non_normal = non_normal)
+  res_overall <- tableone_list2df(table_one_overall(), non_normal = non_normal)
+  
   res <- 
-    res %>% 
-    as.data.frame() %>% 
-    mutate(Variable = stringr::str_replace_all(rownames(res), '"', '')) %>% 
-    select(Variable, everything())
+    left_join(res_group,  res_overall, by = "Variable") %>% 
+    select(Variable, Overall, everything())
   
   output$my_table_one <- DT::renderDataTable({My_DT_table(res)})
   

@@ -8,6 +8,7 @@
 #' @param output internal
 #' @param session internal
 #'
+#' @importFrom officer read_docx
 #' @rdname mod_export_word_table
 #'
 #' @keywords internal
@@ -34,34 +35,18 @@ mod_export_word_table_server <- function(input, output, session, data){
       paste("TableOne", ".docx", sep = "")
     },
     content = function(file) {
-      library(ReporteRs)
+      library(officer)
+      library(flextable)
       library(magrittr)
-      #set option
-      options( "ReporteRs-fontsize" = 12, 
-               "ReporteRs-default-font" = "Times")
-      T1_title <-
-        pot("Table 1. ", textProperties(color = "black", font.weight = "bold")) +
-        "Baseline characteristics of patients in the study"
+      myft <- 
+        data%>% 
+        flextable() %>% 
+        bold(part = "header") %>% 
+        autofit()
       
-      MyFTable <- 
-        data %>%
-        # 设置字体
-        FlexTable(header.cell.props = cellProperties( background.color = "#DDDDDD"),
-                  header.text.props = textBold(color = "black"),
-                  add.rownames = FALSE ) %>%
-        #设置边界
-        setFlexTableBorders(inner.vertical = borderNone(),
-                            inner.horizontal = borderNone(),
-                            outer.vertical = borderNone(),
-                            outer.horizontal = borderProperties( color = "black",style = "solid", width = 2 )) %>% 
-        #斑马线
-        setZebraStyle(odd = "#FFFFFF", even = "#FFFFFF")
-      
-      #写入 word
-      doc <- docx()
-      doc <- addParagraph(doc, T1_title)
-      doc <- addFlexTable(doc, MyFTable)
-      writeDoc(doc, file)
+      officer::read_docx() %>% 
+        body_add_flextable(myft) %>% 
+        print(target = file)
     }
   )
 }

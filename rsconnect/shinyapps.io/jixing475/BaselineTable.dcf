@@ -1,0 +1,12 @@
+name: BaselineTable
+title: BaselineTable
+username:
+account: jixing475
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 948460
+bundleId: 2107977
+url: https://jixing475.shinyapps.io/BaselineTable/
+when: 1558772495.19974
+asMultiple: FALSE
+asStatic: FALSE
