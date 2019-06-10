@@ -8,7 +8,6 @@ app_ui <- function() {
     golem::favicon(),
     # List the first level UI elements here
     fluidPage(theme = "www/bootstrap.css",
-              #==== ⭐️ html head ====
               HTML('<nav class="navbar navbar-inverse">
                      <div class="container-fluid">
                      
