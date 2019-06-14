@@ -55,7 +55,10 @@ app_ui <- function() {
             mod_export_word_table_ui("tableone_word"),
             br(),
             br(),
-            strong("Email: jixing475@163.com")
+            
+            strong("This application was created by Jixing Liu"),
+            br(), 
+            strong( "Please do report bugs and send feature requests to Email: jixing475@163.com")
             )
           
         ))
